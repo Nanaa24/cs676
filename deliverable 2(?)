@@ -1,0 +1,180 @@
+#user_feedback_simulation
+import os
+from tinytroupe.environment.tiny_world import TinyWorld
+from tinytroupe.factory.tiny_person_factory import TinyPersonFactory
+from tinytroupe import control
+
+# ==============================================================
+# 🧹 Optional cache clearing
+# ==============================================================
+
+# Set RESET_CACHE=true in your terminal to clear caches before running.
+if os.getenv("RESET_CACHE", "false").lower() == "true":
+    for cache_file in ["user_feedback_simulation.cache.json", "openai_api_cache.pickle"]:
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+            print(f"🧹 Cleared cache: {cache_file}")
+
+# ==============================================================
+
+print("\n🚀 Initializing User Feedback Simulation...\n")
+
+# Begin recording (for checkpointing and restoration)
+control.begin("user_feedback_simulation.cache.json")
+
+print("\n🌍 Creating or restoring simulation world...\n")
+
+# Create world
+world = TinyWorld("User Feedback Simulation World")
+
+print("\n👥 Generating user personas...\n")
+
+# Create the factory for simulated users
+factory = TinyPersonFactory(
+    sampling_space_description="Users with diverse experiences testing a new app feature.",
+    total_population_size=1,
+    context="Simulating beta testers' first week with a new mobile productivity app."
+)
+
+# Generate personas (use generate_person for v0.5.2)
+users = [
+    factory.generate_person(),
+    factory.generate_person(),
+    factory.generate_person()
+]
+
+for user in users:
+    print(f"✅ Created persona: {user.name}")
+
+# Add users to the simulation world
+for user in users:
+    world.add_agent(user)
+
+
+print("\n💾 Running simulation (phase 1)...\n")
+world.run(3)
+
+print("\n📍 Saving checkpoint...\n")
+control.checkpoint()
+
+print("\n💾 Running simulation (phase 2)...\n")
+world.run(3)
+
+print("\n🏁 Ending simulation and saving cache...\n")
+control.end()
+
+print("\n✅ Simulation complete. State saved to user_feedback_simulation.cache.json.\n")
+
+
+
+
+
+#config.ini
+[OpenAI]
+api_type = openai
+model = gpt-4o-mini
+reasoning_model = gpt-4o-mini
+embedding_model = text-embedding-3-large
+max_tokens = 20000
+temperature = 1.0
+freq_penalty = 0.3
+presence_penalty = 0.4
+timeout = 300
+max_attempts = 6
+waiting_time = 10
+exponential_backoff_factor = 1.5
+cache_api_calls = True
+cache_file_name = openai_api_cache.pickle
+max_content_display_length = 4000
+
+[Simulation]
+parallel_agent_generation = False
+parallel_agent_actions = False
+rai_harmful_content_prevention = True
+rai_copyright_infringement_prevention = True
+agent_persona_depth = low
+agent_emotional_variability = low
+agent_memory_persistence = short
+
+[Cognition]
+enable_memory_consolidation = True
+min_episode_length = 12
+max_episode_length = 45
+episodic_memory_fixed_prefix_length = 8
+episodic_memory_lookback_length = 20
+# Encourage reflection
+enable_self_reflection = True
+reflection_depth = medium
+# Helps consistency over time
+contextual_continuity = True
+
+[ActionGenerator]
+max_attempts = 3
+enable_quality_checks = True
+enable_regeneration = True
+enable_direct_correction = True
+enable_quality_check_for_persona_adherence = True
+enable_quality_check_for_selfconsistency = True
+enable_quality_check_for_fluency = True
+enable_quality_check_for_suitability = True
+enable_quality_check_for_similarity = True
+continue_on_failure = True
+quality_threshold = 6
+
+[Logging]
+loglevel = INFO
+# To debug behavior deeply:
+# loglevel = DEBUG
+
+
+
+
+#tinyworld_test
+# tinyworld_test.py
+import os
+from dotenv import load_dotenv
+
+# Load your API key from .env
+load_dotenv()
+print("DEBUG: OPENAI_API_KEY =", os.getenv("OPENAI_API_KEY"))
+
+from tinytroupe.environment.tiny_world import TinyWorld
+from tinytroupe.agent import TinyPerson
+from tinytroupe import control
+
+# === Start recording (this allows saving & restoring simulation state) ===
+control.begin("simulation.cache.json")
+
+# === Define your agents ===
+alice = TinyPerson(name="Alice")
+alice.define("description", "Curious engineer who loves AI simulations and exploring virtual societies.")
+alice.define("traits", ["curious", "analytical", "friendly"])
+
+bob = TinyPerson(name="Bob")
+bob.define("description", "Skeptical philosopher interested in human behavior and technology ethics.")
+bob.define("traits", ["skeptical", "thoughtful", "empathetic"])
+
+carol = TinyPerson(name="Carol")
+carol.define("description", "Playful artist who expresses creativity through digital mediums.")
+carol.define("traits", ["imaginative", "open-minded", "expressive"])
+
+# === Create a tiny world ===
+world = TinyWorld(agents=[alice, bob, carol])
+
+print("\n🌍 Starting TinyWorld simulation...\n")
+
+# === Run first phase of the simulation ===
+world.run(3)
+
+# === Save a checkpoint (you can resume from this later) ===
+control.checkpoint()
+print("\n💾 Simulation checkpoint saved!\n")
+
+# === Continue simulation ===
+world.run(3)
+
+# === End recording and save everything ===
+control.end()
+print("\n✅ Simulation complete. State saved to simulation.cache.json.\n") 
+
+
