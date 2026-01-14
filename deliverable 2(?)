@@ -50,7 +50,7 @@ for user in users:
 for user in users:
     world.add_agent(user)
 
-    
+
 print("\n💾 Running simulation (phase 1)...\n")
 world.run(3)
 
@@ -175,7 +175,6 @@ world.run(3)
 
 # === End recording and save everything ===
 control.end()
-print("\n✅ Simulation complete. State saved to simulation.cache.json.\n")
-
+print("\n✅ Simulation complete. State saved to simulation.cache.json.\n") 
 
 
